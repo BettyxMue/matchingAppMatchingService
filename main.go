@@ -18,7 +18,7 @@ func addMatch(context *gin.Context) {
 	if err := context.BindJSON(&newMatch); err != nil {
 		return
 	}
-	mockData.MatchData = append(mockData.Matchdata, newMatch)
+	mockData.MatchData = append(mockData.MatchData, newMatch)
 	context.IndentedJSON(http.StatusCreated, newMatch)
 }
 
@@ -26,8 +26,8 @@ func main() {
 	go database.InitalizeConnection()
 
 	router := gin.Default()
-	router.GET("/profile", query.GetAllMatches)
-	router.GET("/profile/:id", query.GetMatchById)
-	router.PUT("/profile", addMatch)
+	router.GET("/match", query.GetAllMatches)
+	router.GET("/match/:id", query.GetMatchById)
+	router.PUT("/match", addMatch)
 	router.Run("0.0.0.0:8080")
 }

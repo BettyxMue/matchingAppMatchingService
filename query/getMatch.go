@@ -10,7 +10,7 @@ import (
 )
 
 func queryMatches(id string) (*dataStructures.Match, error) {
-	for counter, value := range mockData.MatcheData {
+	for counter, value := range mockData.MatchData {
 		if value.Id == id {
 			return &mockData.MatchData[counter], nil
 		}
