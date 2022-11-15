@@ -23,7 +23,7 @@ func addMatch(context *gin.Context) {
 }
 
 func main() {
-	go database.InitalizeConnection()
+	go database.InitializeConnection()
 
 	router := gin.Default()
 	router.GET("/match", query.GetAllMatches)

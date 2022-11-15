@@ -12,7 +12,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func InitalizeConnection() *sql.DB {
+func InitializeConnection() *sql.DB {
 	db, err := sql.Open("mysql", "root:root@tcp(database:3306)/golang_docker")
 	if err != nil {
 		fmt.Println(err)
@@ -33,7 +33,7 @@ func InitalizeConnection() *sql.DB {
 
 func createMatchTable(db *sql.DB) error {
 	fmt.Println("Creating table...")
-	query := "CREATE TABLE IF NOT EXISTS matches(id int primary key AUTO_INCREMENT, user1 USER, user2 USER, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
+	query := "CREATE TABLE IF NOT EXISTS matches(id int primary key AUTO_INCREMENT, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
 	fmt.Println("Sending Command!")
 	res, err := db.Exec(query)
 	if err != nil {

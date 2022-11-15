@@ -7,7 +7,7 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - 8080:8080
-    container_name: golang-profile-service
+    container_name: golang-matching-service
     depends_on:
       database:
         condition: service_healthy
@@ -20,7 +20,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: golang_docker
-    container_name: profile-service-db
+    container_name: matching-service-db
     ports:
       - 3306:3306
     healthcheck:
