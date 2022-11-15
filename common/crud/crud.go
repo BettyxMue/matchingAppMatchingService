@@ -11,13 +11,13 @@ import (
 
 func AddMatch(match *dataStructures.Match, db *sql.DB) error {
 
-	statement, err := db.Prepare("INSERT INTO `matches`(`id`,`user1`,`user2`)VALUES(?, ?, ?)")
+	statement, err := db.Prepare("INSERT INTO `matches`(`id`,`userid1`,`userid2`)VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
 
-	_, errInsert := statement.Exec(&match.Id, &match.User1, &match.User2)
+	_, errInsert := statement.Exec(&match.Id, &match.UserId1, &match.UserId2)
 
 	if errInsert != nil {
 		log.Fatal(errInsert)
