@@ -33,7 +33,7 @@ func InitializeConnection() *sql.DB {
 
 func createMatchTable(db *sql.DB) error {
 	fmt.Println("Creating table...")
-	query := "CREATE TABLE IF NOT EXISTS matches(id int primary key AUTO_INCREMENT, user1 USER_DEFINED_TYPE_SCHEMA, user2 USER_DEFINED_TYPE_SCHEMA, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
+	query := "CREATE TABLE IF NOT EXISTS matches(id int primary key AUTO_INCREMENT, userid1 int, userid2 int, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
 	fmt.Println("Sending Command!")
 	res, err := db.Exec(query)
 	if err != nil {

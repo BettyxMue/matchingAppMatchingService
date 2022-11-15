@@ -4,8 +4,8 @@ type User struct {
 	Id          int    `json:"id"`
 	City        string `json:"city"`
 	Email       string `json:"email"`
-	First_name  string `json:"first_name"`
-	Name        string `json:"name"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"name"`
 	Password    string `json:"password"`
 	Street      string `json:"street"`
 	HouseNumber string `json:"houseNumber"`
@@ -13,7 +13,7 @@ type User struct {
 }
 
 type Match struct {
-	Id    string `json:"id"`
-	User1 User   `json:"user1"`
-	User2 User   `json:"user2"`
+	Id      string `json:"id"`
+	UserId1 int    `json:"userid1"`
+	UserId2 int    `json:"userid2"`
 }
