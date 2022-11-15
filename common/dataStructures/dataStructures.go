@@ -14,6 +14,6 @@ type User struct {
 
 type Match struct {
 	Id    string `json:"id"`
-	User1 User   `json:"userid1"`
-	User2 User   `json:"userid2"`
+	User1 User   `json:"user1"`
+	User2 User   `json:"user2"`
 }
