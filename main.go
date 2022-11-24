@@ -1,33 +1,45 @@
 package main
 
 import (
-	"net/http"
+	"database/sql"
 
-	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/database"
-	"app/matchingAppMatchingService/common/mockData"
-
-	"app/matchingAppMatchingService/query"
+	"app/matchingAppMatchingService/controller"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
-func addMatch(context *gin.Context) {
-	var newMatch dataStructures.Match
-	if err := context.BindJSON(&newMatch); err != nil {
-		return
-	}
-	mockData.MatchData = append(mockData.MatchData, newMatch)
-	context.IndentedJSON(http.StatusCreated, newMatch)
-}
-
 func main() {
-	go database.InitializeConnection()
+	dbChannel := make(chan *sql.DB)
+	gdbChannel := make(chan *gorm.DB)
+	go database.InitializeConnection(dbChannel, gdbChannel)
+
+	db := <-dbChannel
+	gdb := <-gdbChannel
+
+	defer db.Close()
 
 	router := gin.Default()
-	router.GET("/match", query.GetAllMatches)
-	router.GET("/match/:id", query.GetMatchById)
-	router.PUT("/match", addMatch)
+	// Get Requests
+	router.GET("/search", controller.GetAllSearches(gdb))
+	router.GET("/search/:id", controller.GetSearchByID(gdb))
+	router.GET("/match", controller.GetAllMatches(gdb))
+	router.GET("/match/:id", controller.GetAllMatchesForUser(gdb))
+	router.GET("/match/:id/users", controller.GetAllMatchesForUser(gdb))
+
+	// Put Requests
+	router.PUT("/signUp", controller.CreateProfile(gdb))
+	router.PUT("/skill", controller.CreateSkill(gdb))
+	router.PUT("/login", controller.LoginUser(gdb))
+
+	// Update Requests
+	router.PUT("/profile/:id", controller.UpdateUser(gdb))
+
+	// Delete Requests
+	router.DELETE("/profile", controller.DeleteUser(gdb))
+	router.DELETE("/skill/:id", controller.DeleteSkill(gdb))
+
 	router.Run("0.0.0.0:8080")
 }

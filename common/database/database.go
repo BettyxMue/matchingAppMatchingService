@@ -4,55 +4,41 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 
-	"app/matchingAppMatchingService/common/crud"
-	"app/matchingAppMatchingService/common/mockData"
+	"app/matchingAppMatchingService/common/dataStructure"
 
-	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-func InitializeConnection() *sql.DB {
-	db, err := sql.Open("mysql", "root:root@tcp(database:3306)/golang_docker")
+func InitalizeConnection(dbChannel chan *sql.DB, gdbChannel chan *gorm.DB) *sql.DB {
+	dsn := "root:root@tcp(0.0.0.0:3306)/golang_docker?parseTime=true"
+	gDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		fmt.Println(err)
 		panic(errors.New("Error connecting to mysql"))
 	}
-	defer db.Close()
-
 	fmt.Println("Database connected!")
+
+	db, errGetDb := gDb.DB()
+
+	if errGetDb != nil {
+		fmt.Println(err)
+		panic(errors.New("Error getting DB from gorm"))
+	}
 
 	errPing := db.Ping()
 	if errPing != nil {
 		fmt.Println(errPing)
 	}
-	createMatchTable(db)
-	addMockData(db)
+	setupDatabase(gDb)
+	//addMockData(gDb)
+	dbChannel <- db
+	gdbChannel <- gDb
 	return db
 }
 
-func createMatchTable(db *sql.DB) error {
-	fmt.Println("Creating table...")
-	query := "CREATE TABLE IF NOT EXISTS matches(id int primary key AUTO_INCREMENT, userid1 int, userid2 int, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
-	fmt.Println("Sending Command!")
-	res, err := db.Exec(query)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	fmt.Println("Command sended!")
-	rows, err := res.RowsAffected()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	fmt.Printf("Rows affected when creating table: %d\n", rows)
-	return nil
-}
-
-func addMockData(db *sql.DB) {
-	err := crud.AddMatch(&mockData.MatchData[0], db)
-	if err != nil {
-		log.Fatal(err)
-	}
+func setupDatabase(db *gorm.DB) {
+	db.AutoMigrate(&dataStructures.Search{})
 }
