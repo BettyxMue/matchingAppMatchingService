@@ -5,12 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"app/matchingAppMatchingService/common/dataStructures"
 
 	"github.com/go-redis/redis"
-	"github.com/gocql/gocql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -47,32 +45,13 @@ func setupDatabase(db *gorm.DB) {
 	db.AutoMigrate(&dataStructures.Search{})
 }
 
-func InitDB(sessionChannel chan *gocql.Session) (*gocql.Session, error) {
-	cluster := gocql.NewCluster("localhost:9042")
-	cluster.Consistency = gocql.Quorum
-	cluster.ProtoVersion = 4
-	cluster.ConnectTimeout = (time.Second * 40)
-	session, err := cluster.CreateSession()
-
-	if err != nil {
-		fmt.Println("Connection to Cluster failed!")
-		fmt.Println(err)
-		return nil, err
-	}
-	fmt.Println("Connected to Cassandra!")
-
-	sessionChannel <- session
-
-	return session, nil
-}
-
 type Database struct {
 	Client *redis.Client
 }
 
 var (
 	ErrNil = errors.New("no matching record found in redis database")
-	Ctx    = context.TODO()
+	Ctx    = context.Background()
 )
 
 func InitRedis(address string) (*Database, error) {

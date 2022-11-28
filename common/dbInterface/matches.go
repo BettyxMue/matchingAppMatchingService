@@ -1,11 +1,14 @@
 package dbInterface
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
+	"time"
 
 	"app/matchingAppMatchingService/common/dataStructures"
 
-	"github.com/gocql/gocql"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -23,25 +26,23 @@ func GetAllMatches(db *gorm.DB) (*[]dataStructures.Match, error) {
 	return &matches, nil
 }
 
-func GetAllMatchesForUser(session *gocql.Session, userId int) (*[]dataStructures.Match, error) {
-	var match dataStructures.Match
+func GetAllMatchesForUser(db *sql.DB, userId string) (*[]dataStructures.Match, error) {
+	rows, err := db.Query("SELECT * FROM match_space.matches WHERE userid1=" + userId + "'")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 	var matches []dataStructures.Match
-
-	cnqlQuery1 := "SELECT * FROM match_space.match WHERE userid1=?"
-	cnqlQuery2 := "SELECT * FROM match_space.match WHERE userid2=? ALLOW FILTERING"
-	iterator1 := session.Query(cnqlQuery1, userId).Iter()
-	iterator2 := session.Query(cnqlQuery2, userId).Iter()
-	for iterator1.Scan(&match.UserId1, &match.UserId2, &match.UpdatedAt, &match.CreatedAt) {
+	for rows.Next() {
+		var match dataStructures.Match
+		if errLine := rows.Scan(&match.Id, &match.UserId1, &match.UserId2, &match.ConfirmUser1, &match.ConfirmUser2, &match.SearchId); errLine != nil {
+			fmt.Println(errLine)
+			return nil, errLine
+		}
 		matches = append(matches, match)
 	}
-	if errIterator1 := iterator1.Close(); errIterator1 != nil {
-		return nil, errIterator1
-	}
-	for iterator2.Scan(&match.UserId1, &match.UserId2, &match.UpdatedAt, &match.CreatedAt) {
-		matches = append(matches, match)
-	}
-	if errIterator2 := iterator2.Close(); errIterator2 != nil {
-		return nil, errIterator2
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return &matches, nil
 }
@@ -83,14 +84,19 @@ func DeleteMatch(db *gorm.DB, match *dataStructures.Match) error {
 	return nil
 }
 
-func CreateMatch(db *gorm.DB, match *dataStructures.Match) (*dataStructures.Match, error) {
-	result := db.Create(&match)
-
-	if result.Error != nil {
-		return nil, result.Error
+func CreateMatch(db *sql.DB, userId1 int, userId2 int) error {
+	cqlQuery := "INSERT INTO match_space.matches (matchid, userid1, userid2, confirm_user1, confirm_user2, changedat, createdat) VALUES (?,?,?,?,?,?,?) IF NOT EXISTS"
+	matchUUID, errUUID := GenerateUUID()
+	timeNow := time.Now()
+	if errUUID != nil {
+		log.Println("Could not generate id for match!")
+		return errUUID
 	}
-
-	return match, nil
+	err := db.QueryRow(matchUUID, cqlQuery, userId1, userId2, true, true, timeNow, timeNow).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ProposeMatchAgain() {
@@ -105,4 +111,12 @@ func updateValuesForMatch(oldMatch *dataStructures.Match, newMatch *dataStructur
 
 func IsUserOnline() {
 
+}
+
+func GenerateUUID() (string, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return "", err
+	}
+	return id.String(), nil
 }

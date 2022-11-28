@@ -65,7 +65,7 @@ func DeleteSearch(db *gorm.DB) gin.HandlerFunc {
 		searchToDelete, findErr := dbInterface.GetSearchById(db, searchId)
 		if findErr != nil {
 			context.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error": "Skill not found!",
+				"error": "Search not found!",
 			})
 			return
 		}
