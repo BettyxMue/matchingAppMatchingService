@@ -18,11 +18,19 @@ type Match struct {
 
 type Search struct {
 	Id        uint      `json:"searchid" gorm:"primaryKey"`
-	Name	  string	`json:"name"`
+	Name      string    `json:"name"`
 	Topic     string    `json:"topic"`
 	Level     string    `json:"level"`
 	Gender    string    `json:"gender"`
 	Radius    int       `json:"radius"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
+}
+
+type Like struct {
+	LikerId   string    `json:"likerid"`
+	LikedId   string    `json:"likedid"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
+	DeletedAt time.Time `json:"deleted_at"`
 }

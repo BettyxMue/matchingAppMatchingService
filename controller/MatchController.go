@@ -3,13 +3,12 @@ package controller
 import (
 	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/dbInterface"
+	"database/sql"
 	"fmt"
-	"strconv"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gocql/gocql"
 	"gorm.io/gorm"
 )
 
@@ -38,25 +37,25 @@ func GetMatchById(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func GetAllMatchesForUser(session *gocql.Session) gin.HandlerFunc {
+func GetAllMatchesForUser(db *sql.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-
-		userId, errConv := strconv.Atoi(context.Param("id"))
-		if errConv != nil {
-			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": "User ID must be a number",
-			})
-			return
-		}
-		matches, err := dbInterface.GetAllMatchesForUser(session, userId)
+		id := context.Param("userid")
+		matches, err := dbInterface.GetAllMatchesForUser(db, id)
 		if err != nil {
 			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": err,
+				"error": "Server Error!",
 			})
 			return
 		}
-		context.JSON(http.StatusOK, matches)
+		if matches == nil {
+			context.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+				"error": "Matches not found!",
+			})
+			return
+		}
+		context.IndentedJSON(http.StatusOK, matches)
 	}
+
 	return gin.HandlerFunc(handler)
 }
 
@@ -118,13 +117,13 @@ func DeleteMatch(db *gorm.DB) gin.HandlerFunc {
 
 func CreateMatch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		var newMatch dataStructures.Search
+		var newMatch dataStructures.Match
 		if err := context.BindJSON(&newMatch); err != nil {
 			fmt.Println(err)
 			context.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		matchToReturn, errCreate := dbInterface.CreateSearch(db, &newMatch)
+		matchToReturn, errCreate := dbInterface.CreateMatch(db, &newMatch)
 		if errCreate != nil {
 			fmt.Println(errCreate)
 			context.AbortWithError(http.StatusInternalServerError, errCreate)

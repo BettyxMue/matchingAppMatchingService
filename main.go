@@ -8,7 +8,6 @@ import (
 	"app/matchingAppMatchingService/controller"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gocql/gocql"
 	"gorm.io/gorm"
 )
 
@@ -27,16 +26,12 @@ func main() {
 	gdb := <-gdbChannel
 
 	defer db.Close()
-
-	sessionChannel := make(chan *gocql.Session)
-	go database.InitDB(sessionChannel)
-	session := <-sessionChannel
-	defer session.Close()
 	router := gin.Default()
 
 	// Get Requests
 	router.GET("/match", controller.GetAllMatches(gdb))
 	router.GET("/match/:id", controller.GetMatchById(gdb))
+	router.GET("/match/:user", controller.GetAllMatchesForUser(gdb))
 	router.GET("/search", controller.GetAllSearches(gdb))
 	router.GET("/search/:id", controller.GetSearchByID(gdb))
 
@@ -49,8 +44,8 @@ func main() {
 	router.PUT("/match/:id", controller.UpdateMatch(gdb))
 
 	// Delete Requests
-	router.DELETE("/search", controller.DeleteSearch(gdb))
-	router.DELETE("/match", controller.DeleteMatch(gdb))
+	router.DELETE("/search/:id", controller.DeleteSearch(gdb))
+	router.DELETE("/match/:id", controller.DeleteMatch(gdb))
 
 	router.Run("0.0.0.0:8080")
 
@@ -62,6 +57,18 @@ func main() {
 
 	router2 := initRouter(database)
 	router2.Run(ListenAddr)
+
+	// Get Requests
+	router2.GET("/profile/:id/status", controller.IsUserOnline())
+
+	// Put Requests
+	router2.PUT("/like", controller.CreateLikeEntry())
+
+	// Update Requests
+	router2.PUT("/like/:id", controller.UpdateLikeEntry())
+
+	// Delete Requests
+	router2.DELETE("/like/:id", controller.DeleteLikeEntry())
 }
 
 func initRouter(database *database.Database) *gin.Engine {
