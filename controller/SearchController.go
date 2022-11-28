@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func GetAllSearches(db *gorm.DB) gin.HandlerFunc {
@@ -27,7 +26,7 @@ func GetAllSearches(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func CreatSearch(db *gorm.DB) gin.HandlerFunc {
+func CreateSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var newSearch dataStructures.Search
 		if err := context.BindJSON(&newSearch); err != nil {
@@ -35,7 +34,7 @@ func CreatSearch(db *gorm.DB) gin.HandlerFunc {
 			context.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		searchToReturn, errCreate := dbInterface.CreatSearch(db, &newSearch)
+		searchToReturn, errCreate := dbInterface.CreateSearch(db, &newSearch)
 		if errCreate != nil {
 			fmt.Println(errCreate)
 			context.AbortWithError(http.StatusInternalServerError, errCreate)
@@ -46,16 +45,17 @@ func CreatSearch(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func GetSearchByID(db *gorm.DB, searchId string) (*dataStructures.Search, error) {
-	var search dataStructures.Search
-
-	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("searchid=?", searchId).Find(&search).Error
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
+func GetSearchByID(db *gorm.DB) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		id := context.Param("id")
+		users, err := dbInterface.GetSearchById(db, id)
+		if err != nil {
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		context.IndentedJSON(http.StatusOK, users)
 	}
-	return &search, nil
+	return gin.HandlerFunc(handler)
 }
 
 func DeleteSearch(db *gorm.DB) gin.HandlerFunc {

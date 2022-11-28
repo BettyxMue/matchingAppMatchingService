@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func CreatSearch(db *gorm.DB, search *dataStructures.Search) (*dataStructures.Search, error) {
+func CreateSearch(db *gorm.DB, search *dataStructures.Search) (*dataStructures.Search, error) {
 	result := db.Create(&search)
 
 	if result.Error != nil {
