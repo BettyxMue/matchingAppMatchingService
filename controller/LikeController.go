@@ -66,3 +66,27 @@ func HasLiked(redis *redis.Client) gin.HandlerFunc {
 	}
 	return gin.HandlerFunc(handler)
 }
+
+func Dislike(redis *redis.Client) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		var dislike *dataStructures.Dislike
+		errBind := context.BindJSON(&dislike)
+		if errBind != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": errBind.Error(),
+			})
+			return
+		}
+		disliked, err := dbInterface.Dislike(redis, &dislike.DislikerId, &dislike.DislikedId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{
+			"disliked": disliked,
+		})
+	}
+	return gin.HandlerFunc(handler)
+}

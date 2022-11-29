@@ -2,6 +2,7 @@ package dbInterface
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/go-redis/redis"
 )
@@ -23,6 +24,25 @@ func HasUserLiked(redis *redis.Client, userId1 *int, userId2 *int) (bool, error)
 	}
 
 	return result.Val(), nil
+}
+
+func Dislike(redis *redis.Client, userId1 *int, userId2 *int) (bool, error) {
+	result := redis.SAdd("dislike"+strconv.Itoa(*userId1), *userId2)
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
+	var temp = redis.TTL("dislike" + strconv.Itoa(*userId1)).Val()
+
+	if temp == -1000000000 {
+		setExpiry := redis.Expire("dislike"+strconv.Itoa(*userId1), time.Duration(7*24*time.Hour))
+
+		if setExpiry.Err() != nil {
+			return false, setExpiry.Err()
+		}
+	}
+
+	return true, nil
 }
 
 /*

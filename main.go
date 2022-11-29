@@ -46,6 +46,7 @@ func main() {
 	router.PUT("/match", controller.CreateMatch(redis, gdb)) // => Können die Aufrufe verkettet werden? BindJSON 2x
 	router.PUT("/search", controller.CreateSearch(gdb))
 	router.PUT("/like", controller.CreateLike(redis))
+	router.PUT("/dislike", controller.Dislike(redis))
 
 	// Update Requests
 	router.PUT("/search/:id", controller.UpdateSearch(gdb))

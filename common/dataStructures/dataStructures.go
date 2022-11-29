@@ -34,3 +34,10 @@ type UserLike struct {
 	UserId int   `json:"userid"`
 	Liked  []int `json:"liked"`
 }
+
+type Dislike struct {
+	DislikerId int       `json:"dislikerId"`
+	DislikedId int       `json:"dislikedId"`
+	CreatedAt  time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
+}
