@@ -1,0 +1,68 @@
+package controller
+
+import (
+	"app/matchingAppMatchingService/common/dataStructures"
+	"app/matchingAppMatchingService/common/dbInterface"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+)
+
+func CreateLike(redis *redis.Client) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		var like *dataStructures.Like
+		errBind := context.BindJSON(&like)
+		if errBind != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": "Could not find required fields!",
+			})
+			return
+		}
+		created, err := dbInterface.CreateLike(redis, &like.LikerId, &like.LikedId)
+		if !created {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		match, _ := CreateMatchAfterLike(redis, like)
+
+		if match != nil {
+			context.JSON(http.StatusCreated, match)
+			return
+		}
+
+		context.JSON(http.StatusCreated, gin.H{
+			"message": "Like created",
+		})
+	}
+	return gin.HandlerFunc(handler)
+
+}
+
+func HasLiked(redis *redis.Client) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		var like *dataStructures.Like
+		errBind := context.BindJSON(&like)
+		if errBind != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": "Could not find required fields!",
+			})
+			return
+		}
+		liked, err := dbInterface.HasUserLiked(redis, &like.LikerId, &like.LikedId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{
+			"liked": liked,
+		})
+
+	}
+	return gin.HandlerFunc(handler)
+}

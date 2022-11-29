@@ -5,15 +5,11 @@ import (
 )
 
 type Match struct {
-	Id           uint      `json:"matchid" gorm:"primaryKey"`
-	SearchId     Search    `json:"match_searchid"`
-	UserId1      int       `json:"userid1"`
-	UserId2      int       `json:"userid2"`
-	ConfirmUser1 bool      `json:"confirm_user1"`
-	ConfirmUser2 bool      `json:"confirm_user2"`
-	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
-	DeletedAt    time.Time `json:"deleted_at"`
+	Id        uint      `json:"matchid" gorm:"primaryKey"`
+	LikerId   int       `json:"likerId"`
+	LikedId   int       `json:"likedId"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
 }
 
 type Search struct {
@@ -28,9 +24,13 @@ type Search struct {
 }
 
 type Like struct {
-	LikerId   string    `json:"likerid"`
-	LikedId   string    `json:"likedid"`
+	LikerId   int       `json:"likerId"`
+	LikedId   int       `json:"likedId"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
-	DeletedAt time.Time `json:"deleted_at"`
+}
+
+type UserLike struct {
+	UserId int   `json:"userid"`
+	Liked  []int `json:"liked"`
 }

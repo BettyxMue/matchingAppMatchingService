@@ -1,13 +1,31 @@
 package dbInterface
 
 import (
-	"fmt"
-
-	"app/matchingAppMatchingService/common/dataStructures"
+	"strconv"
 
 	"github.com/go-redis/redis"
 )
 
+func CreateLike(redis *redis.Client, userId *int, liked *int) (bool, error) {
+	//res,err := redis.Do("SADD", userId, liked)
+	ress := redis.SAdd(strconv.Itoa(*userId), *liked)
+	if ress.Err() != nil {
+		return false, ress.Err()
+	}
+	return true, nil
+}
+
+func HasUserLiked(redis *redis.Client, userId1 *int, userId2 *int) (bool, error) {
+	result := redis.SIsMember(strconv.Itoa(*userId1), *userId2)
+
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
+	return result.Val(), nil
+}
+
+/*
 func CreateLikeTable() {
 
 }
@@ -40,3 +58,4 @@ func UpdateLikeEntry() {
 func DeleteLikeEntry() {
 
 }
+*/
