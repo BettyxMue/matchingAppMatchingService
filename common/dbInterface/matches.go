@@ -1,11 +1,8 @@
 package dbInterface
 
 import (
-	"fmt"
-
 	"app/matchingAppMatchingService/common/dataStructures"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,7 +13,6 @@ func GetAllMatches(db *gorm.DB) (*[]dataStructures.Match, error) {
 	err := db.Model(&dataStructures.Match{}).Preload(clause.Associations).Find(&matches).Error
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -39,7 +35,6 @@ func GetMatchById(db *gorm.DB, matchId string) (*dataStructures.Match, error) {
 	err := db.Model(&dataStructures.Match{}).Where("matchid=?", matchId).Find(&matches).Error
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return &matches, nil
@@ -64,18 +59,46 @@ func CreateMatch(db *gorm.DB, match *dataStructures.Match) (*dataStructures.Matc
 	return match, nil
 }
 
-func ProposeMatchAgain() {
-
-}
-
 func IsUserOnline() {
 
 }
 
-func GenerateUUID() (string, error) {
-	id, err := uuid.NewRandom()
-	if err != nil {
-		return "", err
+func FilterPeople(db *gorm.DB, search *dataStructures.Search, users []dataStructures.User) ([]dataStructures.User, error) {
+
+	//TODO: People in Like / Dislike Tabelle überprüfen
+
+	errLevel := db.Model(&users).Preload(clause.Associations).Where("level=?", search.Level).Find(&users).Error
+	if errLevel != nil {
+		return nil, errLevel
 	}
-	return id.String(), nil
+
+	errGender := db.Model(&users).Preload(clause.Associations).Where("gender=?", search.Gender).Find(&users).Error
+	if errGender != nil {
+		return nil, errGender
+	}
+
+	//TODO: Radius
+	/*errRadius := db.Model(&users).Preload(clause.Associations).Where("radius=<?", search.Radius).Find(&users).Error
+	if errRadius != nil {
+		return nil, errRadius
+	}*/
+
+	/*var userIds []int
+
+	for i, s := range users {
+		userIds[i] = int(users[i].ID)
+	}*/
+
+	return users, nil
+}
+
+func PossibleUsers(db *gorm.DB, skillId int) ([]dataStructures.User, error) {
+	var users []dataStructures.User
+
+	err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

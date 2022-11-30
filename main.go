@@ -41,6 +41,7 @@ func main() {
 	router.GET("/search", controller.GetAllSearches(gdb))
 	router.GET("/search/:id", controller.GetSearchByID(gdb))
 	router.GET("/hasLiked", controller.HasLiked(redis))
+	router.GET("/searching/:id", controller.ProposeUser(gdb))
 
 	// Put Requests
 	router.PUT("/match", controller.CreateMatch(redis, gdb)) // => Können die Aufrufe verkettet werden? BindJSON 2x
