@@ -3,14 +3,18 @@ package controller
 import (
 	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/dbInterface"
-	"database/sql"
+	"errors"
 	"fmt"
+	"strconv"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
+
+var DB *gorm.DB
 
 func GetAllMatches(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
@@ -37,10 +41,18 @@ func GetMatchById(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func GetAllMatchesForUser(db *sql.DB) gin.HandlerFunc {
+func GetAllMatchesForUser(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		id := context.Param("userid")
-		matches, err := dbInterface.GetAllMatchesForUser(db, id)
+		id := context.Param("id")
+		idInt, errConv := strconv.Atoi(id)
+		if errConv != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": "Server Error!",
+			})
+			return
+		}
+
+		matches, err := dbInterface.GetAllMatchesForUser(db, idInt)
 		if err != nil {
 			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "Server Error!",
@@ -56,31 +68,6 @@ func GetAllMatchesForUser(db *sql.DB) gin.HandlerFunc {
 		context.IndentedJSON(http.StatusOK, matches)
 	}
 
-	return gin.HandlerFunc(handler)
-}
-
-func UpdateMatch(db *gorm.DB) gin.HandlerFunc {
-	handler := func(context *gin.Context) {
-		var newData *dataStructures.Match
-		var matchId = context.Param("matchid")
-		errBind := context.BindJSON(&newData)
-		if errBind != nil {
-			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": errBind,
-			})
-			return
-		}
-
-		updatedMatch, errUpdate := dbInterface.UpdateMatch(db, matchId, newData)
-		if errUpdate != nil {
-			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": errBind,
-			})
-			return
-		}
-		context.JSON(http.StatusOK, updatedMatch)
-
-	}
 	return gin.HandlerFunc(handler)
 }
 
@@ -115,7 +102,7 @@ func DeleteMatch(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func CreateMatch(db *gorm.DB) gin.HandlerFunc {
+func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var newMatch dataStructures.Match
 		if err := context.BindJSON(&newMatch); err != nil {
@@ -123,21 +110,63 @@ func CreateMatch(db *gorm.DB) gin.HandlerFunc {
 			context.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		matchToReturn, errCreate := dbInterface.CreateMatch(db, &newMatch)
+		// Check for confirmed match
+		user2LikedUser1, errUser2 := dbInterface.HasUserLiked(redis, &newMatch.LikedId, &newMatch.LikerId)
+
+		if errUser2 != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": errUser2,
+			})
+			return
+		}
+
+		if !user2LikedUser1 {
+			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": "User didn't like each other!",
+			})
+			return
+		}
+
+		// Create Match in DB
+		match, errCreate := dbInterface.CreateMatch(db, &newMatch)
 		if errCreate != nil {
 			fmt.Println(errCreate)
 			context.AbortWithError(http.StatusInternalServerError, errCreate)
 			return
 		}
-		context.IndentedJSON(http.StatusOK, matchToReturn)
+		context.IndentedJSON(http.StatusOK, match)
 	}
 	return gin.HandlerFunc(handler)
 }
 
-func ProposeMatchAgain() {
-
-}
+// Helper
 
 func IsUserOnline() {
 
+}
+
+func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (*dataStructures.Match, error) {
+
+	// Check for confirmed match
+	user2LikedUser1, errUser2 := dbInterface.HasUserLiked(redis, &matchData.LikedId, &matchData.LikerId)
+
+	if errUser2 != nil {
+		return nil, errUser2
+	}
+
+	if !user2LikedUser1 {
+		return nil, errors.New("No match yet")
+	}
+
+	newMatch := *&dataStructures.Match{
+		LikerId: matchData.LikerId,
+		LikedId: matchData.LikedId,
+	}
+
+	// Create Match in DB
+	match, errCreate := dbInterface.CreateMatch(DB, &newMatch)
+	if errCreate != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+	return match, nil
 }

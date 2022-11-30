@@ -1,10 +1,7 @@
 package dbInterface
 
 import (
-	"database/sql"
 	"fmt"
-	"log"
-	"time"
 
 	"app/matchingAppMatchingService/common/dataStructures"
 
@@ -25,23 +22,12 @@ func GetAllMatches(db *gorm.DB) (*[]dataStructures.Match, error) {
 
 	return &matches, nil
 }
-
-func GetAllMatchesForUser(db *sql.DB, userId string) (*[]dataStructures.Match, error) {
-	rows, err := db.Query("SELECT * FROM match_space.matches WHERE userid1=" + userId + "'")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
+func GetAllMatchesForUser(db *gorm.DB, userId int) (*[]dataStructures.Match, error) {
 	var matches []dataStructures.Match
-	for rows.Next() {
-		var match dataStructures.Match
-		if errLine := rows.Scan(&match.Id, &match.UserId1, &match.UserId2, &match.ConfirmUser1, &match.ConfirmUser2, &match.SearchId); errLine != nil {
-			fmt.Println(errLine)
-			return nil, errLine
-		}
-		matches = append(matches, match)
-	}
-	if err := rows.Err(); err != nil {
+
+	err := db.Model(&dataStructures.Match{}).Where("userId1=?", userId).Find(&matches).Error
+
+	if err != nil {
 		return nil, err
 	}
 	return &matches, nil
@@ -50,30 +36,13 @@ func GetAllMatchesForUser(db *sql.DB, userId string) (*[]dataStructures.Match, e
 func GetMatchById(db *gorm.DB, matchId string) (*dataStructures.Match, error) {
 	var matches dataStructures.Match
 
-	err := db.Model(&dataStructures.Match{}).Preload(clause.Associations).Where("matchid=?", matchId).Find(&matches).Error
+	err := db.Model(&dataStructures.Match{}).Where("matchid=?", matchId).Find(&matches).Error
 
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 	return &matches, nil
-}
-
-func UpdateMatch(db *gorm.DB, matchId string, newData *dataStructures.Match) (*dataStructures.Match, error) {
-	matchToUpdate, errFind := GetMatchById(db, matchId)
-	if errFind != nil {
-		return nil, errFind
-	}
-
-	changedUser := updateValuesForMatch(matchToUpdate, newData, db)
-
-	result := db.Save(&changedUser)
-
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return changedUser, nil
 }
 
 func DeleteMatch(db *gorm.DB, match *dataStructures.Match) error {
@@ -84,29 +53,19 @@ func DeleteMatch(db *gorm.DB, match *dataStructures.Match) error {
 	return nil
 }
 
-func CreateMatch(db *sql.DB, userId1 int, userId2 int) error {
-	cqlQuery := "INSERT INTO match_space.matches (matchid, userid1, userid2, confirm_user1, confirm_user2, changedat, createdat) VALUES (?,?,?,?,?,?,?) IF NOT EXISTS"
-	matchUUID, errUUID := GenerateUUID()
-	timeNow := time.Now()
-	if errUUID != nil {
-		log.Println("Could not generate id for match!")
-		return errUUID
+func CreateMatch(db *gorm.DB, match *dataStructures.Match) (*dataStructures.Match, error) {
+
+	errInsert := db.Save(match)
+
+	if errInsert.Error != nil {
+		return nil, errInsert.Error
 	}
-	err := db.QueryRow(matchUUID, cqlQuery, userId1, userId2, true, true, timeNow, timeNow).Err()
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return match, nil
 }
 
 func ProposeMatchAgain() {
 
-}
-
-func updateValuesForMatch(oldMatch *dataStructures.Match, newMatch *dataStructures.Match, db *gorm.DB) *dataStructures.Match {
-	oldMatch.ConfirmUser1 = newMatch.ConfirmUser1
-	oldMatch.ConfirmUser2 = newMatch.ConfirmUser2
-	return oldMatch
 }
 
 func IsUserOnline() {

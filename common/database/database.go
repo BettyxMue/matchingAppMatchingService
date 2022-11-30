@@ -42,11 +42,7 @@ func InitalizeConnection(dbChannel chan *sql.DB, gdbChannel chan *gorm.DB) *sql.
 }
 
 func setupDatabase(db *gorm.DB) {
-	db.AutoMigrate(&dataStructures.Search{})
-}
-
-type Database struct {
-	Client *redis.Client
+	db.AutoMigrate(&dataStructures.Match{})
 }
 
 var (
@@ -54,7 +50,7 @@ var (
 	Ctx    = context.Background()
 )
 
-func InitRedis(address string) (*Database, error) {
+func InitRedis(address string, redisChannel chan *redis.Client) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: "",
@@ -63,7 +59,6 @@ func InitRedis(address string) (*Database, error) {
 	if err := client.Ping().Err(); err != nil {
 		return nil, err
 	}
-	return &Database{
-		Client: client,
-	}, nil
+	redisChannel <- client
+	return client, nil
 }
