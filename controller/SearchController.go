@@ -30,13 +30,11 @@ func CreateSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var newSearch dataStructures.Search
 		if err := context.BindJSON(&newSearch); err != nil {
-			fmt.Println(err)
 			context.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 		searchToReturn, errCreate := dbInterface.CreateSearch(db, &newSearch)
 		if errCreate != nil {
-			fmt.Println(errCreate)
 			context.AbortWithError(http.StatusInternalServerError, errCreate)
 			return
 		}
@@ -60,7 +58,7 @@ func GetSearchByID(db *gorm.DB) gin.HandlerFunc {
 
 func DeleteSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		searchId := context.Param("searchid")
+		searchId := context.Param("id")
 
 		searchToDelete, findErr := dbInterface.GetSearchById(db, searchId)
 		if findErr != nil {
