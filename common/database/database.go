@@ -43,6 +43,7 @@ func InitalizeConnection(dbChannel chan *sql.DB, gdbChannel chan *gorm.DB) *sql.
 
 func setupDatabase(db *gorm.DB) {
 	db.AutoMigrate(&dataStructures.Match{})
+	db.AutoMigrate(&dataStructures.Search{})
 }
 
 var (

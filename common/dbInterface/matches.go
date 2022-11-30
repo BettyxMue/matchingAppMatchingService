@@ -32,7 +32,7 @@ func GetAllMatchesForUser(db *gorm.DB, userId int) (*[]dataStructures.Match, err
 func GetMatchById(db *gorm.DB, matchId string) (*dataStructures.Match, error) {
 	var matches dataStructures.Match
 
-	err := db.Model(&dataStructures.Match{}).Where("matchid=?", matchId).Find(&matches).Error
+	err := db.Model(&dataStructures.Match{}).Where("id=?", matchId).Find(&matches).Error
 
 	if err != nil {
 		return nil, err

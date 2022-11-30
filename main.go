@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	ListenAddr = "localhost:8080"
+	ListenAddr = "localhost:8084"
 	RedisAddr  = "localhost:6379"
 )
 
@@ -40,7 +40,7 @@ func main() {
 	router.GET("/match/user/:id", controller.GetAllMatchesForUser(gdb))
 	router.GET("/search", controller.GetAllSearches(gdb))
 	router.GET("/search/:id", controller.GetSearchByID(gdb))
-	router.GET("/hasLiked", controller.HasLiked(redis))
+	router.GET("/hasLiked", controller.HasLiked(redis)) //Ids mitgeben?
 	router.GET("/searching/:id", controller.ProposeUser(gdb))
 
 	// Put Requests

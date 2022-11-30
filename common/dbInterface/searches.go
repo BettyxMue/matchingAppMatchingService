@@ -35,7 +35,7 @@ func GetAllSearches(db *gorm.DB) (*[]dataStructures.Search, error) {
 func GetSearchById(db *gorm.DB, searchId string) (*dataStructures.Search, error) {
 	var searches dataStructures.Search
 
-	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("searchid=?", searchId).Find(&searches).Error
+	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("id=?", searchId).Find(&searches).Error
 
 	if err != nil {
 		fmt.Println(err)
