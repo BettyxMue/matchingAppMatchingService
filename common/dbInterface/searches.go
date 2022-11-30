@@ -74,7 +74,7 @@ func updateValuesForSearch(oldSearch *dataStructures.Search, newSearch *dataStru
 	oldSearch.Name = newSearch.Name
 	oldSearch.Level = newSearch.Level
 	oldSearch.Gender = newSearch.Gender
-	oldSearch.Topic = newSearch.Topic
+	oldSearch.Skill = newSearch.Skill
 	oldSearch.Radius = newSearch.Radius
 	return oldSearch
 }
