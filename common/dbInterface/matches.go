@@ -63,42 +63,65 @@ func IsUserOnline() {
 
 }
 
-func FilterPeople(db *gorm.DB, search *dataStructures.Search, users []dataStructures.User) ([]dataStructures.User, error) {
+func FilterPeople(users []dataStructures.User, search *dataStructures.Search) ([]dataStructures.User, error) {
 
-	//TODO: People in Like / Dislike Tabelle überprüfen
+	var possibleUsers []dataStructures.User
 
-	errLevel := db.Model(&users).Preload(clause.Associations).Where("level=?", search.Level).Find(&users).Error
-	if errLevel != nil {
-		return nil, errLevel
+	for i, _ := range users {
+
+		// Check for Gender
+		if users[i].Gender != "0" {
+
+			if users[i].Gender == search.Gender {
+
+				//TODO: Check for Radius
+
+				var skills = users[i].AchievedSkills
+				for j, _ := range skills {
+
+					// Check for Level
+					if skills[j].Level == search.Level {
+						possibleUsers = append(possibleUsers, users[i])
+					}
+				}
+			}
+		} else {
+			//TODO: Check for Radius
+
+			var skills = users[i].AchievedSkills
+			for j, _ := range skills {
+
+				// Check for Level
+				if skills[j].Level == search.Level {
+					possibleUsers = append(possibleUsers, users[i])
+				}
+			}
+		}
 	}
 
-	errGender := db.Model(&users).Preload(clause.Associations).Where("gender=?", search.Gender).Find(&users).Error
-	if errGender != nil {
-		return nil, errGender
-	}
-
-	//TODO: Radius
-	/*errRadius := db.Model(&users).Preload(clause.Associations).Where("radius=<?", search.Radius).Find(&users).Error
-	if errRadius != nil {
-		return nil, errRadius
-	}*/
-
-	/*var userIds []int
-
-	for i, s := range users {
-		userIds[i] = int(users[i].ID)
-	}*/
-
-	return users, nil
+	return possibleUsers, nil
 }
 
-func PossibleUsers(db *gorm.DB, skillId int) ([]dataStructures.User, error) {
-	var users []dataStructures.User
+func PossibleUsers(users *[]dataStructures.User, skillId int) ([]dataStructures.User, error) {
 
-	err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
+	var possbileUsers []dataStructures.User
+
+	for i, _ := range *users {
+
+		var skills = (*users)[i].AchievedSkills
+		for j, _ := range skills {
+
+			if skills[j].ID == uint(skillId) {
+				possbileUsers = append(possbileUsers, (*users)[i])
+			}
+		}
+	}
+
+	/*err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
 
 	if err != nil {
 		return nil, err
-	}
-	return users, nil
+	}*/
+
+	return possbileUsers, nil
 }
