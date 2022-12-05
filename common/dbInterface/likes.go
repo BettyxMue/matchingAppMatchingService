@@ -45,6 +45,16 @@ func Dislike(redis *redis.Client, userId1 *int, userId2 *int) (bool, error) {
 	return true, nil
 }
 
+func HasUserDisliked(redis *redis.Client, userId1 *int, userId2 *int) (bool, error) {
+	result := redis.SIsMember("dislike"+strconv.Itoa(*userId1), *userId2)
+
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
+	return result.Val(), nil
+}
+
 /*
 func CreateLikeTable() {
 
