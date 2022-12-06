@@ -76,7 +76,9 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 
 				//TODO: Check for Radius
 
-				var skills = (*users)[i].AchievedSkills
+				possibleUsers = append(possibleUsers, (*users)[i])
+
+				/*var skills = (*users)[i].AchievedSkills
 				for j, _ := range skills {
 
 					if skills[j].ID == uint(search.Id) {
@@ -86,12 +88,14 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 							possibleUsers = append(possibleUsers, (*users)[i])
 						}
 					}
-				}
+				}*/
 			}
 		} else {
 			//TODO: Check for Radius
 
-			var skills = (*users)[i].
+			possibleUsers = append(possibleUsers, (*users)[i])
+
+			/*var skills = (*users)[i].
 			for j, _ := range skills {
 
 				if skills[j].ID == uint(search.Id) {
@@ -101,7 +105,7 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 						possibleUsers = append(possibleUsers, (*users)[i])
 					}
 				}
-			}
+			}*/
 		}
 	}
 
