@@ -63,37 +63,37 @@ func IsUserOnline() {
 
 }
 
-func FilterPeople(users []dataStructures.User, search *dataStructures.Search) ([]dataStructures.User, error) {
+func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) ([]dataStructures.User, error) {
 
 	var possibleUsers []dataStructures.User
 
-	for i, _ := range users {
+	for i, _ := range *users {
 
 		// Check for Gender
-		if users[i].Gender != "0" {
+		if (*users)[i].Gender != "0" {
 
-			if users[i].Gender == search.Gender {
+			if (*users)[i].Gender == search.Gender {
 
 				//TODO: Check for Radius
 
-				var skills = users[i].AchievedSkills
+				var skills = (*users)[i].AchievedSkills
 				for j, _ := range skills {
 
 					// Check for Level
 					if skills[j].Level == search.Level {
-						possibleUsers = append(possibleUsers, users[i])
+						possibleUsers = append(possibleUsers, (*users)[i])
 					}
 				}
 			}
 		} else {
 			//TODO: Check for Radius
 
-			var skills = users[i].AchievedSkills
+			var skills = (*users)[i].AchievedSkills
 			for j, _ := range skills {
 
 				// Check for Level
 				if skills[j].Level == search.Level {
-					possibleUsers = append(possibleUsers, users[i])
+					possibleUsers = append(possibleUsers, (*users)[i])
 				}
 			}
 		}
@@ -102,7 +102,7 @@ func FilterPeople(users []dataStructures.User, search *dataStructures.Search) ([
 	return possibleUsers, nil
 }
 
-func PossibleUsers(users *[]dataStructures.User, skillId int) ([]dataStructures.User, error) {
+/*func PossibleUsers(users *[]dataStructures.User, skillId int) ([]dataStructures.User, error) {
 
 	var possbileUsers []dataStructures.User
 
@@ -117,11 +117,11 @@ func PossibleUsers(users *[]dataStructures.User, skillId int) ([]dataStructures.
 		}
 	}
 
-	/*err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
+	err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
 
 	if err != nil {
 		return nil, err
-	}*/
+	}
 
 	return possbileUsers, nil
-}
+}*/

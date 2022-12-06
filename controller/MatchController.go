@@ -164,7 +164,7 @@ func ProposeUser(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 
 		var search dataStructures.Search
 
-		allUsers, errUsers := connector.GetAllProfiles()
+		selectedSkilledUsers, errUsers := connector.GetProfilesBySkill(search.Id)
 		if errUsers != nil {
 			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"error": "No users found!",
@@ -172,15 +172,7 @@ func ProposeUser(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		possibleUsers, errPossible := dbInterface.PossibleUsers(allUsers, search.Skill)
-		if errPossible != nil {
-			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
-				"error": "No fitting users with searched skill found!",
-			})
-			return
-		}
-
-		possibleUserToPropose, errProposal := dbInterface.FilterPeople(possibleUsers, &search)
+		possibleUserToPropose, errProposal := dbInterface.FilterPeople(selectedSkilledUsers, &search)
 		if errProposal != nil {
 			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"error": "No fitting users for your searched settings found!",
@@ -240,7 +232,7 @@ func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (
 	return match, nil
 }
 
-func FilterPeople(db *gorm.DB, search *dataStructures.Search, possibleUsers []dataStructures.User) ([]dataStructures.User, error) {
+func FilterPeople(db *gorm.DB, search *dataStructures.Search, possibleUsers *[]dataStructures.User) ([]dataStructures.User, error) {
 
 	filteredUsers, err := dbInterface.FilterPeople(possibleUsers, search)
 	if err != nil {
