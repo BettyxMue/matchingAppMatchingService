@@ -32,7 +32,7 @@ func GetAllSearches(db *gorm.DB) (*[]dataStructures.Search, error) {
 	return &searches, nil
 }
 
-func GetSearchById(db *gorm.DB, searchId string) (*dataStructures.Search, error) {
+func GetSearchById(db *gorm.DB, searchId int) (*dataStructures.Search, error) {
 	var searches dataStructures.Search
 
 	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("id=?", searchId).Find(&searches).Error
@@ -44,7 +44,7 @@ func GetSearchById(db *gorm.DB, searchId string) (*dataStructures.Search, error)
 	return &searches, nil
 }
 
-func UpdateSearch(db *gorm.DB, searchId string, newData *dataStructures.Search) (*dataStructures.Search, error) {
+func UpdateSearch(db *gorm.DB, searchId int, newData *dataStructures.Search) (*dataStructures.Search, error) {
 	searchToUpdate, errFind := GetSearchById(db, searchId)
 	if errFind != nil {
 		return nil, errFind

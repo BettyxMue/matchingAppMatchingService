@@ -17,7 +17,7 @@ type Search struct {
 	Name      string    `json:"name"`
 	Skill     int       `json:"skill"`
 	Level     string    `json:"level"`
-	Gender    string    `json:"gender"`
+	Gender    int       `json:"gender"`
 	Radius    int       `json:"radius"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
@@ -48,7 +48,7 @@ type User struct {
 	UpdatedAt       time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
 	First_name      string    `json:"firstName"`
 	Name            string    `json:"name"`
-	Gender          string    `json:"gender"`
+	Gender          int       `json:"gender"`
 	Username        string    `json:"username"`
 	Email           string    `json:"email"`
 	Street          string    `json:"street"`

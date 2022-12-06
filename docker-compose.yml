@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - 8080:8080
+      - 8084:8084
     container_name: golang-matching-service
     depends_on:
       mysql:
@@ -22,7 +22,7 @@ services:
       MYSQL_DATABASE: golang_docker
     container_name: matching-service-db-mysql
     ports:
-      - 3306:3306
+      - 3307:3036
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s

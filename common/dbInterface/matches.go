@@ -70,7 +70,7 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 	for i, _ := range *users {
 
 		// Check for Gender
-		if (*users)[i].Gender != "0" {
+		if search.Gender != 4 {
 
 			if (*users)[i].Gender == search.Gender {
 
@@ -79,21 +79,27 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 				var skills = (*users)[i].AchievedSkills
 				for j, _ := range skills {
 
-					// Check for Level
-					if skills[j].Level == search.Level {
-						possibleUsers = append(possibleUsers, (*users)[i])
+					if skills[j].ID == uint(search.Id) {
+
+						// Check for Level
+						if skills[j].Level == search.Level {
+							possibleUsers = append(possibleUsers, (*users)[i])
+						}
 					}
 				}
 			}
 		} else {
 			//TODO: Check for Radius
 
-			var skills = (*users)[i].AchievedSkills
+			var skills = (*users)[i].
 			for j, _ := range skills {
 
-				// Check for Level
-				if skills[j].Level == search.Level {
-					possibleUsers = append(possibleUsers, (*users)[i])
+				if skills[j].ID == uint(search.Id) {
+
+					// Check for Level
+					if skills[j].Level == search.Level {
+						possibleUsers = append(possibleUsers, (*users)[i])
+					}
 				}
 			}
 		}

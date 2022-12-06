@@ -3,6 +3,7 @@ package controller
 import (
 	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/dbInterface"
+	"strconv"
 
 	"fmt"
 	"net/http"
@@ -46,7 +47,16 @@ func CreateSearch(db *gorm.DB) gin.HandlerFunc {
 func GetSearchByID(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		id := context.Param("id")
-		users, err := dbInterface.GetSearchById(db, id)
+
+		convSearchId, err := strconv.Atoi(id)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		users, err := dbInterface.GetSearchById(db, convSearchId)
 		if err != nil {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -60,7 +70,15 @@ func DeleteSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		searchId := context.Param("id")
 
-		searchToDelete, findErr := dbInterface.GetSearchById(db, searchId)
+		convSearchId, err := strconv.Atoi(searchId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		searchToDelete, findErr := dbInterface.GetSearchById(db, convSearchId)
 		if findErr != nil {
 			context.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 				"error": "Search not found!",
@@ -88,6 +106,15 @@ func UpdateSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var newData *dataStructures.Search
 		var searchId = context.Param("searchid")
+
+		convSearchId, err := strconv.Atoi(searchId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
 		errBind := context.BindJSON(&newData)
 		if errBind != nil {
 			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -96,7 +123,7 @@ func UpdateSearch(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		updatedSearch, errUpdate := dbInterface.UpdateSearch(db, searchId, newData)
+		updatedSearch, errUpdate := dbInterface.UpdateSearch(db, convSearchId, newData)
 		if errUpdate != nil {
 			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": errBind,
