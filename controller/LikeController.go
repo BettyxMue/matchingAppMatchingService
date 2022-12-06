@@ -27,9 +27,9 @@ func CreateLike(redis *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		match, _ := CreateMatchAfterLike(redis, like)
+		match, matchErr := CreateMatchAfterLike(redis, like)
 
-		if match != nil {
+		if matchErr != nil {
 			context.JSON(http.StatusCreated, match)
 			return
 		}

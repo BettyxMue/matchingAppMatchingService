@@ -5,7 +5,7 @@ import (
 )
 
 type Match struct {
-	Id        uint      `json:"matchid" gorm:"primaryKey"`
+	Id        int       `json:"matchid" gorm:"primaryKey"`
 	LikerId   int       `json:"likerId"`
 	LikedId   int       `json:"likedId"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
@@ -13,11 +13,11 @@ type Match struct {
 }
 
 type Search struct {
-	Id        uint      `json:"searchid" gorm:"primaryKey"`
+	Id        int       `json:"searchid" gorm:"primaryKey"`
 	Name      string    `json:"name"`
 	Skill     int       `json:"skill"`
 	Level     string    `json:"level"`
-	Gender    string    `json:"gender"`
+	Gender    int       `json:"gender"`
 	Radius    int       `json:"radius"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
@@ -43,12 +43,12 @@ type Dislike struct {
 }
 
 type User struct {
-	ID              uint      `json:"id" gorm:"primaryKey"`
+	ID              int       `json:"id" gorm:"primaryKey"`
 	CreatedAt       time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt       time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
 	First_name      string    `json:"firstName"`
 	Name            string    `json:"name"`
-	Gender          string    `json:"gender"`
+	Gender          int       `json:"gender"`
 	Username        string    `json:"username"`
 	Email           string    `json:"email"`
 	Street          string    `json:"street"`

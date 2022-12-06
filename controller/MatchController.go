@@ -3,6 +3,8 @@ package controller
 import (
 	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/dbInterface"
+	"app/matchingAppMatchingService/connector"
+
 	"errors"
 	"strconv"
 
@@ -136,32 +138,71 @@ func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func ProposeUser(db *gorm.DB) gin.HandlerFunc {
+func ProposeUser(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		//TODO: Überprüfung auf Like/Dislike
-
-		var possibleUsers []dataStructures.User
-		if err := context.BindJSON(&possibleUsers); err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		var search dataStructures.Search
-
-		possibleUsers, errPossible := dbInterface.PossibleUsers(db, search.Skill)
-		if errPossible != nil {
-			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
-				"error": "No fitting users with searched skill found!",
+		// Get current User Id
+		userId := context.Param("userid")
+		convUserId, err := strconv.Atoi(userId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
 			})
 			return
 		}
 
-		userToPropose, errProposal := dbInterface.FilterPeople(db, &search, possibleUsers)
+		searchId := context.Param("id")
+		convId, err := strconv.Atoi(searchId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		search, searchErr := dbInterface.GetSearchById(db, convId)
+		if searchErr != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		/*userToFind, errFind := connector.GetProfileById((convId))
+		if errFind != nil {
+			context.AbortWithError(http.StatusNotFound, errFind)
+			return
+		}*/
+
+		// Select Users
+		selectedSkilledUsers, errUsers := connector.GetProfilesBySkill(search.Skill)
+		if errUsers != nil {
+			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": "No users found!",
+			})
+			return
+		}
+
+		possibleUserToPropose, errProposal := dbInterface.FilterPeople(selectedSkilledUsers, search)
 		if errProposal != nil {
 			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
-				"error": "No fitting users for your search found!",
+				"error": "No fitting users for your searched settings found!",
 			})
 			return
+		}
+
+		// Check for Dislike
+		var userToPropose []dataStructures.User
+
+		for i, _ := range possibleUserToPropose {
+			user1LikedUser2, _ := dbInterface.HasUserDisliked(redis, &convUserId, &possibleUserToPropose[i].ID)
+
+			user2LikedUser1, _ := dbInterface.HasUserDisliked(redis, &possibleUserToPropose[i].ID, &convUserId)
+
+			if !user1LikedUser2 {
+				if !user2LikedUser1 {
+					userToPropose = append(userToPropose, possibleUserToPropose[i])
+				}
+			}
 		}
 
 		context.IndentedJSON(http.StatusOK, userToPropose)
@@ -201,9 +242,9 @@ func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (
 	return match, nil
 }
 
-func FilterPeople(db *gorm.DB, search *dataStructures.Search, possibleUsers []dataStructures.User) ([]dataStructures.User, error) {
+func FilterPeople(db *gorm.DB, search *dataStructures.Search, possibleUsers *[]dataStructures.User) ([]dataStructures.User, error) {
 
-	filteredUsers, err := dbInterface.FilterPeople(db, search, possibleUsers)
+	filteredUsers, err := dbInterface.FilterPeople(possibleUsers, search)
 	if err != nil {
 		return nil, err
 	}
