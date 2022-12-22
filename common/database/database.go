@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 
 	"app/matchingAppMatchingService/common/dataStructures"
 
@@ -14,7 +15,7 @@ import (
 )
 
 func InitalizeConnection(dbChannel chan *sql.DB, gdbChannel chan *gorm.DB) *sql.DB {
-	dsn := "root:root@tcp(0.0.0.0:3306)/golang_docker?parseTime=true"
+	dsn := "root:root@tcp(" + os.Getenv("MYSQL_HOST") + ")/golang_docker?parseTime=true"
 	gDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {

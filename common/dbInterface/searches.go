@@ -76,5 +76,18 @@ func updateValuesForSearch(oldSearch *dataStructures.Search, newSearch *dataStru
 	oldSearch.Gender = newSearch.Gender
 	oldSearch.Skill = newSearch.Skill
 	oldSearch.Radius = newSearch.Radius
+	oldSearch.CreatedBy = newSearch.CreatedBy
 	return oldSearch
+}
+
+func GetSearchByUser(db *gorm.DB, userId int) (*dataStructures.Search, error) {
+	var searches dataStructures.Search
+
+	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("createdby=?", userId).Find(&searches).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return &searches, nil
 }

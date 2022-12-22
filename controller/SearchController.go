@@ -44,7 +44,7 @@ func CreateSearch(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(handler)
 }
 
-func GetSearchByID(db *gorm.DB) gin.HandlerFunc {
+func GetSearchById(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		id := context.Param("id")
 
@@ -56,12 +56,12 @@ func GetSearchByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		users, err := dbInterface.GetSearchById(db, convSearchId)
+		searches, err := dbInterface.GetSearchById(db, convSearchId)
 		if err != nil {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		context.IndentedJSON(http.StatusOK, users)
+		context.IndentedJSON(http.StatusOK, searches)
 	}
 	return gin.HandlerFunc(handler)
 }
@@ -132,6 +132,28 @@ func UpdateSearch(db *gorm.DB) gin.HandlerFunc {
 		}
 		context.JSON(http.StatusOK, updatedSearch)
 
+	}
+	return gin.HandlerFunc(handler)
+}
+
+func GetSearchByUser(db *gorm.DB) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		userId := context.Param("createdby")
+
+		convUserId, err := strconv.Atoi(userId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		searches, err := dbInterface.GetSearchByUser(db, convUserId)
+		if err != nil {
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		context.IndentedJSON(http.StatusOK, searches)
 	}
 	return gin.HandlerFunc(handler)
 }
