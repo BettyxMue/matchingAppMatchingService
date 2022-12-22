@@ -11,9 +11,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
-      - 'DB_PORT=3306'
-      - 'DB_HOST=database'
   mysql:
     image: mysql:5.7.22
     environment:

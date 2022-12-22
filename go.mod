@@ -27,6 +27,7 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/gocql/gocql v1.2.1
 	github.com/google/uuid v1.3.0
+	github.com/joho/godotenv v1.4.0
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
