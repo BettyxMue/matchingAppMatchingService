@@ -80,10 +80,10 @@ func updateValuesForSearch(oldSearch *dataStructures.Search, newSearch *dataStru
 	return oldSearch
 }
 
-func GetSearchByUser(db *gorm.DB, userId int) (*dataStructures.Search, error) {
-	var searches dataStructures.Search
+func GetSearchByUser(db *gorm.DB, userId int) (*[]dataStructures.Search, error) {
+	var searches []dataStructures.Search
 
-	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("createdby=?", userId).Find(&searches).Error
+	err := db.Model(&dataStructures.Search{}).Preload(clause.Associations).Where("created_by=?", userId).Find(&searches).Error
 
 	if err != nil {
 		fmt.Println(err)

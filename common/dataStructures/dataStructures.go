@@ -21,7 +21,7 @@ type Search struct {
 	Radius    int       `json:"radius"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdatedTime"`
-	CreatedBy int       `json:"createdby"`
+	CreatedBy int       `json:"created_by"`
 }
 
 type Like struct {

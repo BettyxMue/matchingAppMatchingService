@@ -105,7 +105,7 @@ func DeleteSearch(db *gorm.DB) gin.HandlerFunc {
 func UpdateSearch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var newData *dataStructures.Search
-		var searchId = context.Param("searchid")
+		var searchId = context.Param("id")
 
 		convSearchId, err := strconv.Atoi(searchId)
 		if err != nil {
@@ -138,7 +138,7 @@ func UpdateSearch(db *gorm.DB) gin.HandlerFunc {
 
 func GetSearchByUser(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		userId := context.Param("createdby")
+		userId := context.Param("id")
 
 		convUserId, err := strconv.Atoi(userId)
 		if err != nil {

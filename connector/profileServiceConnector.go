@@ -11,6 +11,8 @@ import (
 	"app/matchingAppMatchingService/common/dataStructures"
 )
 
+var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzE4MzU1NDUsInN1YiI6MiwidXNlciI6Mn0.sTVRUgPZl04VMSbcGvjRSacucCiVOQ4iYU_Nx4a_IE3jy6JtrXXCOOMjeLaxAWbNho5DFLxjKDFf05JVgTB9Mo8lkeGeogDHfumcz3yBnRv0cOXfTjuATGULF8vyM8sjTkkD3O9hYiK568UBJEFE8geY2q_k-3ONTZLv2ysZt2Y"
+
 func GetProfileById(id int) (*dataStructures.User, error) {
 	var user dataStructures.User
 	query := "http://0.0.0.0:8080/profile/" + strconv.Itoa(id)
@@ -24,7 +26,7 @@ func GetProfileById(id int) (*dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzAzNDk5NTgsInN1YiI6MSwidXNlciI6MX0.EFSj4-Aj95t9O8kWzgtDz2odJ5OiA2zrvHuJsiJkw0_U5w8IqIF6z3z_mLeR2uKVqfHl8XtELs0BGs3JuaANRvoSi1nviwf58oKuF7AwyY2DXT0cdtGVmUiMzi0CWg9BumjRsyL0M42oJV25sGpzwgWctk34yvNz0ScS0hBzvrhx2rSVHW3rJtRDevMp_UG9kZRDMPTKX9ax2jv_43FCFRtdcLdPO-CYJMQHhgMAZKO5nwAVqtOOtWXohSDrUPnSPgqOkbB8mOls6uckHoEgLFAUIJsxTckyh5Xt6_enyZ68W3ggsHDGPu0irvRfOrTYrB4fbaTMOQFZXqi4IJC_Xg")
+	request.Header.Set("Authorization", "Bearer "+token)
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {
@@ -59,7 +61,7 @@ func GetAllProfiles() (*[]dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzAzNDk5NTgsInN1YiI6MSwidXNlciI6MX0.EFSj4-Aj95t9O8kWzgtDz2odJ5OiA2zrvHuJsiJkw0_U5w8IqIF6z3z_mLeR2uKVqfHl8XtELs0BGs3JuaANRvoSi1nviwf58oKuF7AwyY2DXT0cdtGVmUiMzi0CWg9BumjRsyL0M42oJV25sGpzwgWctk34yvNz0ScS0hBzvrhx2rSVHW3rJtRDevMp_UG9kZRDMPTKX9ax2jv_43FCFRtdcLdPO-CYJMQHhgMAZKO5nwAVqtOOtWXohSDrUPnSPgqOkbB8mOls6uckHoEgLFAUIJsxTckyh5Xt6_enyZ68W3ggsHDGPu0irvRfOrTYrB4fbaTMOQFZXqi4IJC_Xg")
+	request.Header.Set("Authorization", "Bearer "+token)
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {
@@ -94,7 +96,7 @@ func GetProfilesBySkill(skillId int) (*[]dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzAzNDk5NTgsInN1YiI6MSwidXNlciI6MX0.EFSj4-Aj95t9O8kWzgtDz2odJ5OiA2zrvHuJsiJkw0_U5w8IqIF6z3z_mLeR2uKVqfHl8XtELs0BGs3JuaANRvoSi1nviwf58oKuF7AwyY2DXT0cdtGVmUiMzi0CWg9BumjRsyL0M42oJV25sGpzwgWctk34yvNz0ScS0hBzvrhx2rSVHW3rJtRDevMp_UG9kZRDMPTKX9ax2jv_43FCFRtdcLdPO-CYJMQHhgMAZKO5nwAVqtOOtWXohSDrUPnSPgqOkbB8mOls6uckHoEgLFAUIJsxTckyh5Xt6_enyZ68W3ggsHDGPu0irvRfOrTYrB4fbaTMOQFZXqi4IJC_Xg")
+	request.Header.Set("Authorization", "Bearer "+token)
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {
