@@ -32,7 +32,7 @@ func GetAllMatchesForUser(db *gorm.DB, userId int) (*[]dataStructures.Match, err
 func GetMatchById(db *gorm.DB, matchId string) (*dataStructures.Match, error) {
 	var matches dataStructures.Match
 
-	err := db.Model(&dataStructures.Match{}).Where("id=?", matchId).Find(&matches).Error
+	err := db.Model(&dataStructures.Match{}).Where("matchid=?", matchId).Find(&matches).Error
 
 	if err != nil {
 		return nil, err
@@ -40,8 +40,15 @@ func GetMatchById(db *gorm.DB, matchId string) (*dataStructures.Match, error) {
 	return &matches, nil
 }
 
-func DeleteMatch(db *gorm.DB, match *dataStructures.Match) error {
-	result := db.Delete(&match)
+func DeleteMatch(db *gorm.DB, matchId string) error {
+	var matchToDelete dataStructures.Match
+
+	err := db.Model(&dataStructures.Match{}).Where("id=?", matchId).Find(&matchToDelete).Error
+	if err != nil {
+		return err
+	}
+
+	result := db.Delete(&matchToDelete)
 	if result.Error != nil {
 		return result.Error
 	}

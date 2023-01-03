@@ -74,27 +74,20 @@ func GetAllMatchesForUser(db *gorm.DB) gin.HandlerFunc {
 
 func DeleteMatch(db *gorm.DB) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
-		var toFind struct {
-			matchId string
-		}
-		errExtract := context.Bind(&toFind)
-		if errExtract != nil {
-			context.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
+		id := context.Param("id")
 
-		matchToDelete, errFind := dbInterface.GetMatchById(db, toFind.matchId)
+		errFind := dbInterface.DeleteMatch(db, id)
 		if errFind != nil {
 			context.AbortWithError(http.StatusNotFound, errFind)
 			return
 		}
 
-		if errDelete := dbInterface.DeleteMatch(db, matchToDelete); errDelete != nil {
+		/*if errDelete := dbInterface.DeleteMatch(db, matchToDelete); errDelete != nil {
 			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": errDelete,
 			})
 			return
-		}
+		}*/
 
 		context.JSON(http.StatusOK, gin.H{
 			"message": "Match deleted!",
@@ -133,7 +126,9 @@ func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 			context.AbortWithError(http.StatusInternalServerError, errCreate)
 			return
 		}
-		context.IndentedJSON(http.StatusOK, match)
+		context.IndentedJSON(http.StatusAccepted, gin.H{
+			"Match created - Id:": match.Id,
+		})
 	}
 	return gin.HandlerFunc(handler)
 }

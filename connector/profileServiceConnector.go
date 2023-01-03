@@ -11,7 +11,7 @@ import (
 	"app/matchingAppMatchingService/common/dataStructures"
 )
 
-var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzE4MzU1NDUsInN1YiI6MiwidXNlciI6Mn0.sTVRUgPZl04VMSbcGvjRSacucCiVOQ4iYU_Nx4a_IE3jy6JtrXXCOOMjeLaxAWbNho5DFLxjKDFf05JVgTB9Mo8lkeGeogDHfumcz3yBnRv0cOXfTjuATGULF8vyM8sjTkkD3O9hYiK568UBJEFE8geY2q_k-3ONTZLv2ysZt2Y"
+var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzI3NjIxMzUsInN1YiI6MiwidXNlciI6Mn0.TOoeocqIDd9yIz5mCu8JL81xQaPobuOP3jTB1Ek5tLvMHCS5nnv86WJOl_g-4Eu-1KzdB0wXyl4d8sGYG7akXFxbDlArB1BWk9w9f52XnaBjTKWF_gZvmzatqi83f3nJu803naIu1W-dzKTHIwo8LDKzNK62nSjRv9aNLH-F1P4"
 
 func GetProfileById(id int) (*dataStructures.User, error) {
 	var user dataStructures.User

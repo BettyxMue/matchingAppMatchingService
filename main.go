@@ -41,6 +41,7 @@ func main() {
 	router.GET("/search", controller.GetAllSearches(gdb))
 	router.GET("/search/:id", controller.GetSearchById(gdb))
 	router.GET("/hasLiked", controller.HasLiked(redis)) //Ids mitgeben?
+	router.GET("/hasDisliked", controller.HasDisliked(redis))
 	router.GET("/searching/:id/:userid", controller.ProposeUser(gdb, redis))
 	router.GET("/search/user/:id", controller.GetSearchByUser(gdb))
 
