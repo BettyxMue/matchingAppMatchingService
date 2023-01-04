@@ -126,6 +126,18 @@ func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 			context.AbortWithError(http.StatusInternalServerError, errCreate)
 			return
 		}
+
+		_, errLike1 := dbInterface.DeleteLikeEntry(redis, newMatch.LikedId, newMatch.LikerId)
+		if errLike1 != nil {
+			context.AbortWithError(http.StatusInternalServerError, errLike1)
+			return
+		}
+		_, errLike2 := dbInterface.DeleteLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+		if errLike2 != nil {
+			context.AbortWithError(http.StatusInternalServerError, errLike2)
+			return
+		}
+
 		context.IndentedJSON(http.StatusAccepted, gin.H{
 			"Match created - Id:": match.Id,
 		})
@@ -234,6 +246,16 @@ func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (
 	if errCreate != nil {
 		return nil, errors.New(errCreate.Error())
 	}
+
+	_, errLike1 := dbInterface.DeleteLikeEntry(redis, matchData.LikedId, matchData.LikerId)
+	if errLike1 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+	_, errLike2 := dbInterface.DeleteLikeEntry(redis, matchData.LikerId, matchData.LikedId)
+	if errLike2 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+
 	return match, nil
 }
 

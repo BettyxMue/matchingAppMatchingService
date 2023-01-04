@@ -34,9 +34,15 @@ func CreateLike(redis *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusCreated, gin.H{
-			"message": "Like created",
-		})
+		if match != nil {
+			context.JSON(http.StatusCreated, gin.H{
+				"match": true,
+			})
+		} else {
+			context.JSON(http.StatusCreated, gin.H{
+				"like": created,
+			})
+		}
 	}
 	return gin.HandlerFunc(handler)
 
