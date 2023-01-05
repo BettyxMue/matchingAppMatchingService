@@ -61,9 +61,9 @@ func HasUserDisliked(redis *redis.Client, userId1 *int, userId2 *int) (bool, err
 	return result.Val(), nil
 }
 
-func GetAllLikers(redis *redis.Client, userId1 *string) (*[]string, error) {
+func GetAllLikers(redis *redis.Client, userId1 *int) (*[]string, error) {
 
-	result, err := redis.SMembers("liked" + *userId1).Result()
+	result, err := redis.SMembers("liked" + strconv.Itoa(*userId1)).Result()
 
 	if err != nil {
 		return nil, err

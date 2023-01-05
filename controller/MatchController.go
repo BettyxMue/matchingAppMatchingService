@@ -309,7 +309,7 @@ func ExploreUser(redis *redis.Client) gin.HandlerFunc {
 
 		// Get People
 
-		possibleUserIdsToPropose, errUsers := dbInterface.GetAllLikers(redis, &userId)
+		possibleUserIdsToPropose, errUsers := dbInterface.GetAllLikers(redis, &convUserId)
 		if errUsers != nil || possibleUserIdsToPropose == nil {
 			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"error": "No users found!",
@@ -351,12 +351,7 @@ func ExploreUser(redis *redis.Client) gin.HandlerFunc {
 			if !user1DislikedUser2 {
 				if !user2DislikedUser1 {
 
-					// Check for Like
-					user2LikedUser1, _ := dbInterface.HasUserLiked(redis, &otherUserId, &convUserId)
-
-					if user2LikedUser1 {
-						userToPropose = append(userToPropose, *otherUserData)
-					}
+					userToPropose = append(userToPropose, *otherUserData)
 				}
 			}
 		}
