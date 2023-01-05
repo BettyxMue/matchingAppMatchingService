@@ -44,11 +44,12 @@ func main() {
 	router.GET("/hasDisliked", controller.HasDisliked(redis))
 	router.GET("/searching/:id/:userid", controller.ProposeUser(gdb, redis))
 	router.GET("/search/user/:id", controller.GetSearchByUser(gdb))
+	router.GET("/exploring/:id", controller.ExploreUser(redis))
 
 	// Put Requests
 	router.PUT("/match", controller.CreateMatch(redis, gdb)) // => Können die Aufrufe verkettet werden? BindJSON 2x
 	router.PUT("/search", controller.CreateSearch(gdb))
-	router.PUT("/like", controller.CreateLike(redis))
+	router.PUT("/like", controller.CreateLike(gdb, redis))
 	router.PUT("/dislike", controller.Dislike(redis))
 
 	// Update Requests

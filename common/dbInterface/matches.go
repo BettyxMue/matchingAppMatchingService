@@ -142,3 +142,19 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 
 	return possbileUsers, nil
 }*/
+
+func MatchExists(db *gorm.DB, userId1 *int, userId2 *int) (bool, error) {
+	var match dataStructures.Match
+	var match0 dataStructures.Match
+
+	err := db.Model(&dataStructures.Match{}).Where("liker_id=? AND liked_id=?", userId1, userId2).Find(&match).Error
+	if err != nil {
+		return false, err
+	}
+
+	if &match.Id == &match0.Id {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}

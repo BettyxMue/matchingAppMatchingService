@@ -7,9 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	"gorm.io/gorm"
 )
 
-func CreateLike(redis *redis.Client) gin.HandlerFunc {
+func CreateLike(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 	handler := func(context *gin.Context) {
 		var like *dataStructures.Like
 		errBind := context.BindJSON(&like)
@@ -27,11 +28,10 @@ func CreateLike(redis *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		match, matchErr := CreateMatchAfterLike(redis, like)
+		match, matchErr := CreateMatchAfterLike(db, redis, like)
 
 		if matchErr != nil {
 			context.JSON(http.StatusCreated, match)
-			return
 		}
 
 		if match != nil {

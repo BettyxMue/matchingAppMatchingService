@@ -13,6 +13,12 @@ func CreateLike(redis *redis.Client, userId *int, liked *int) (bool, error) {
 	if ress.Err() != nil {
 		return false, ress.Err()
 	}
+
+	result := redis.SAdd("liked"+strconv.Itoa(*liked), *userId)
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
 	return true, nil
 }
 
@@ -53,6 +59,17 @@ func HasUserDisliked(redis *redis.Client, userId1 *int, userId2 *int) (bool, err
 	}
 
 	return result.Val(), nil
+}
+
+func GetAllLikers(redis *redis.Client, userId1 *string) (*[]string, error) {
+
+	result, err := redis.SMembers("liked" + *userId1).Result()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 /*

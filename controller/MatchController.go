@@ -127,15 +127,17 @@ func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		_, errLike1 := dbInterface.DeleteLikeEntry(redis, newMatch.LikedId, newMatch.LikerId)
-		if errLike1 != nil {
-			context.AbortWithError(http.StatusInternalServerError, errLike1)
-			return
-		}
-		_, errLike2 := dbInterface.DeleteLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
-		if errLike2 != nil {
-			context.AbortWithError(http.StatusInternalServerError, errLike2)
-			return
+		if match != nil {
+			_, errLike1 := dbInterface.DeleteLikeEntry(redis, newMatch.LikedId, newMatch.LikerId)
+			if errLike1 != nil {
+				context.AbortWithError(http.StatusInternalServerError, errLike1)
+				return
+			}
+			_, errLike2 := dbInterface.DeleteLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+			if errLike2 != nil {
+				context.AbortWithError(http.StatusInternalServerError, errLike2)
+				return
+			}
 		}
 
 		context.IndentedJSON(http.StatusAccepted, gin.H{
@@ -201,13 +203,18 @@ func ProposeUser(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 		var userToPropose []dataStructures.User
 
 		for i, _ := range possibleUserToPropose {
-			user1LikedUser2, _ := dbInterface.HasUserDisliked(redis, &convUserId, &possibleUserToPropose[i].ID)
+			user1DislikedUser2, _ := dbInterface.HasUserDisliked(redis, &convUserId, &possibleUserToPropose[i].ID)
 
-			user2LikedUser1, _ := dbInterface.HasUserDisliked(redis, &possibleUserToPropose[i].ID, &convUserId)
+			user2DislikedUser1, _ := dbInterface.HasUserDisliked(redis, &possibleUserToPropose[i].ID, &convUserId)
 
-			if !user1LikedUser2 {
-				if !user2LikedUser1 {
-					userToPropose = append(userToPropose, possibleUserToPropose[i])
+			if !user1DislikedUser2 {
+				if !user2DislikedUser1 {
+
+					user1LikedUser2, _ := dbInterface.HasUserLiked(redis, &convUserId, &possibleUserToPropose[i].ID)
+
+					if !user1LikedUser2 {
+						userToPropose = append(userToPropose, possibleUserToPropose[i])
+					}
 				}
 			}
 		}
@@ -223,7 +230,7 @@ func IsUserOnline() {
 
 }
 
-func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (*dataStructures.Match, error) {
+func CreateMatchAfterLike(db *gorm.DB, redis *redis.Client, matchData *dataStructures.Like) (*dataStructures.Match, error) {
 
 	// Check for confirmed match
 	user2LikedUser1, errUser2 := dbInterface.HasUserLiked(redis, &matchData.LikedId, &matchData.LikerId)
@@ -234,6 +241,23 @@ func CreateMatchAfterLike(redis *redis.Client, matchData *dataStructures.Like) (
 
 	if !user2LikedUser1 {
 		return nil, errors.New("No match yet")
+	}
+
+	//Check for already existing match
+	user1user2Match, errMatch1 := dbInterface.MatchExists(db, &matchData.LikedId, &matchData.LikerId)
+	if errMatch1 != nil {
+		return nil, errMatch1
+	}
+	if user1user2Match {
+		return nil, errors.New("Match already exists")
+	}
+
+	user2user1Match, errMatch2 := dbInterface.MatchExists(db, &matchData.LikerId, &matchData.LikedId)
+	if errMatch2 != nil {
+		return nil, errMatch1
+	}
+	if user2user1Match {
+		return nil, errors.New("Match already exists")
 	}
 
 	newMatch := *&dataStructures.Match{
@@ -267,4 +291,77 @@ func FilterPeople(db *gorm.DB, search *dataStructures.Search, possibleUsers *[]d
 	}
 
 	return filteredUsers, nil
+}
+
+func ExploreUser(redis *redis.Client) gin.HandlerFunc {
+	handler := func(context *gin.Context) {
+		// Get current User Id
+		userId := context.Param("id")
+		convUserId, err := strconv.Atoi(userId)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		var userToPropose []dataStructures.User
+
+		// Get People
+
+		possibleUserIdsToPropose, errUsers := dbInterface.GetAllLikers(redis, &userId)
+		if errUsers != nil || possibleUserIdsToPropose == nil {
+			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": "No users found!",
+			})
+			return
+		}
+
+		/*possibleUserToPropose, errUsers := connector.GetAllProfiles()
+		if errUsers != nil {
+			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": "No users found!",
+			})
+			return
+		}*/
+
+		// Check for Dislike
+		for _, otherUserIdString := range *possibleUserIdsToPropose {
+
+			otherUserId, err := strconv.Atoi(otherUserIdString)
+			if err != nil {
+				context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err,
+				})
+				return
+			}
+
+			otherUserData, errData := connector.GetProfileById(otherUserId)
+			if errData != nil {
+				context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err,
+				})
+				return
+			}
+
+			user1DislikedUser2, _ := dbInterface.HasUserDisliked(redis, &convUserId, &otherUserId)
+
+			user2DislikedUser1, _ := dbInterface.HasUserDisliked(redis, &otherUserId, &convUserId)
+
+			if !user1DislikedUser2 {
+				if !user2DislikedUser1 {
+
+					// Check for Like
+					user2LikedUser1, _ := dbInterface.HasUserLiked(redis, &otherUserId, &convUserId)
+
+					if user2LikedUser1 {
+						userToPropose = append(userToPropose, *otherUserData)
+					}
+				}
+			}
+		}
+
+		context.IndentedJSON(http.StatusOK, userToPropose)
+	}
+	return gin.HandlerFunc(handler)
 }
