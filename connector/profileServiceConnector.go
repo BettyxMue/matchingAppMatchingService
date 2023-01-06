@@ -5,13 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"app/matchingAppMatchingService/common/dataStructures"
 )
-
-var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzI5NjIxOTcsInN1YiI6MTQsInVzZXIiOjE0fQ.KlbjMunzqp4LPMgpxMqphhT2t-SPbZ9x0a5AX-hOGXV-7sTQDA6EE3HazRFXpQrPQ4WfOuZgGo_9lCiNsyv_WO8cTE_bsEblCjLCKj2LZ0oGT8Ts5OIeKQAegpBqBzXDhEpynoPlXtYuuqPA8a7tbtaO0WsWsAVebm-EI60P7AI"
 
 func GetProfileById(id int) (*dataStructures.User, error) {
 	var user dataStructures.User
@@ -26,7 +25,7 @@ func GetProfileById(id int) (*dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer "+token)
+	request.Header.Set("Authorization", "Bearer "+os.Getenv("JWT"))
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {
@@ -61,7 +60,7 @@ func GetAllProfiles() (*[]dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer "+token)
+	request.Header.Set("Authorization", "Bearer "+os.Getenv("JWT"))
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {
@@ -96,7 +95,7 @@ func GetProfilesBySkill(skillId int) (*[]dataStructures.User, error) {
 		return nil, errReq
 	}
 
-	request.Header.Set("Authorization", "Bearer "+token)
+	request.Header.Set("Authorization", "Bearer "+os.Getenv("JWT"))
 
 	result, errRes := restClient.Do(request)
 	if errRes != nil {

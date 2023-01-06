@@ -9,25 +9,28 @@ services:
       - 8084:8084
     container_name: golang-matching-service
     depends_on:
-      mysql:
+      matchingDB:
         condition: service_healthy
     environment:
-      - 'DB_PORT=3307'
-      - 'DB_HOST=database'
-  mysql:
+      - 'MYSQL_HOST=matchingDB:3310'
+      - 'REDIS_HOST=matchingRedis:6379'
+  matchingDB:
     image: mysql:5.7.22
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: golang_docker
+      MYSQL_TCP_PORT: 3310
     container_name: matching-service-db-mysql
     ports:
-      - 3307:3306
+      - 3310:3310
+    expose:
+      - 3310
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-  redis:
+  matchingRedis:
     image: redis:latest
     container_name: matching-service-db-redis
     ports:
