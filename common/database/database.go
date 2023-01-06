@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"app/matchingAppMatchingService/common/dataStructures"
@@ -16,6 +17,7 @@ import (
 
 func InitalizeConnection(dbChannel chan *sql.DB, gdbChannel chan *gorm.DB) *sql.DB {
 	dsn := "root:root@tcp(" + os.Getenv("MYSQL_HOST") + ")/golang_docker?parseTime=true"
+	log.Println("MySQL Host: " + dsn)
 	gDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -54,7 +56,7 @@ var (
 
 func InitRedis(address string, redisChannel chan *redis.Client) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     address,
+		Addr:     os.Getenv("REDIS_HOST"),
 		Password: "",
 		DB:       0,
 	})

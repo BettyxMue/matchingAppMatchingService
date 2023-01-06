@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"log"
 
 	"app/matchingAppMatchingService/common/database"
+	"app/matchingAppMatchingService/common/initializer"
 	"app/matchingAppMatchingService/controller"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +20,13 @@ var (
 
 func main() {
 	// MySQL Requests
+	readyChannel := make(chan bool)
 	dbChannel := make(chan *sql.DB)
 	gdbChannel := make(chan *gorm.DB)
 	redisChannel := make(chan *redis.Client)
+	go initializer.LoadEnvVariables(readyChannel)
+	<-readyChannel
+	log.Println("Service has loaded env")
 	go database.InitalizeConnection(dbChannel, gdbChannel)
 	go database.InitRedis(RedisAddr, redisChannel)
 
