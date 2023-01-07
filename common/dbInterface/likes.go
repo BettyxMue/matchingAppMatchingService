@@ -103,7 +103,7 @@ func UpdateLikeEntry() {
 }*/
 
 func DeleteLikeEntry(redis *redis.Client, userId1 int, userId2 int) (bool, error) {
-	result := redis.Del(strconv.Itoa(userId1), strconv.Itoa(userId2))
+	result := redis.SRem(strconv.Itoa(userId1), strconv.Itoa(userId2))
 
 	if result.Err() != nil {
 		return false, result.Err()

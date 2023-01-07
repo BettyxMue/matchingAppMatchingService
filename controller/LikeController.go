@@ -3,6 +3,7 @@ package controller
 import (
 	"app/matchingAppMatchingService/common/dataStructures"
 	"app/matchingAppMatchingService/common/dbInterface"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,17 +32,19 @@ func CreateLike(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 		match, matchErr := CreateMatchAfterLike(db, redis, like)
 
 		if matchErr != nil {
-			context.JSON(http.StatusCreated, match)
+			log.Println(matchErr)
 		}
 
 		if match != nil {
 			context.JSON(http.StatusCreated, gin.H{
 				"match": true,
 			})
+			return
 		} else {
 			context.JSON(http.StatusCreated, gin.H{
 				"like": created,
 			})
+			return
 		}
 	}
 	return gin.HandlerFunc(handler)
