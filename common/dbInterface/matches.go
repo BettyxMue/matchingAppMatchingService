@@ -85,63 +85,17 @@ func FilterPeople(users *[]dataStructures.User, search *dataStructures.Search) (
 
 				possibleUsers = append(possibleUsers, (*users)[i])
 
-				/*var skills = (*users)[i].AchievedSkills
-				for j, _ := range skills {
-
-					if skills[j].ID == uint(search.Id) {
-
-						// Check for Level
-						if skills[j].Level == search.Level {
-							possibleUsers = append(possibleUsers, (*users)[i])
-						}
-					}
-				}*/
 			}
 		} else {
 			//TODO: Check for Radius
 
 			possibleUsers = append(possibleUsers, (*users)[i])
 
-			/*var skills = (*users)[i].
-			for j, _ := range skills {
-
-				if skills[j].ID == uint(search.Id) {
-
-					// Check for Level
-					if skills[j].Level == search.Level {
-						possibleUsers = append(possibleUsers, (*users)[i])
-					}
-				}
-			}*/
 		}
 	}
 
 	return possibleUsers, nil
 }
-
-/*func PossibleUsers(users *[]dataStructures.User, skillId int) ([]dataStructures.User, error) {
-
-	var possbileUsers []dataStructures.User
-
-	for i, _ := range *users {
-
-		var skills = (*users)[i].AchievedSkills
-		for j, _ := range skills {
-
-			if skills[j].ID == uint(skillId) {
-				possbileUsers = append(possbileUsers, (*users)[i])
-			}
-		}
-	}
-
-	err := db.Model(&dataStructures.User{}).Preload(clause.Associations).Where("skillId=?", skillId).Find(&users).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return possbileUsers, nil
-}*/
 
 func MatchExists(db *gorm.DB, userId1 *int, userId2 *int) (bool, error) {
 	var match dataStructures.Match

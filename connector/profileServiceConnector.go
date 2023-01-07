@@ -14,7 +14,7 @@ import (
 
 func GetProfileById(id int) (*dataStructures.User, error) {
 	var user dataStructures.User
-	query := "http://0.0.0.0:8080/profile/" + strconv.Itoa(id)
+	query := os.Getenv("PROFILE_SERVICE_HOST") + "/profile/" + strconv.Itoa(id)
 	restClient := http.Client{
 		Timeout: time.Second * 40,
 	}
@@ -49,7 +49,7 @@ func GetProfileById(id int) (*dataStructures.User, error) {
 
 func GetAllProfiles() (*[]dataStructures.User, error) {
 	var users []dataStructures.User
-	query := "http://0.0.0.0:8080/profile/"
+	query := os.Getenv("PROFILE_SERVICE_HOST") + "/profile/"
 	restClient := http.Client{
 		Timeout: time.Second * 40,
 	}
@@ -84,7 +84,7 @@ func GetAllProfiles() (*[]dataStructures.User, error) {
 
 func GetProfilesBySkill(skillId int) (*[]dataStructures.User, error) {
 	var users []dataStructures.User
-	query := "http://0.0.0.0:8080/skill/" + strconv.Itoa(skillId) + "/users"
+	query := os.Getenv("PROFILE_SERVICE_HOST") + "/skill/" + strconv.Itoa(skillId) + "/users"
 	restClient := http.Client{
 		Timeout: time.Second * 40,
 	}
