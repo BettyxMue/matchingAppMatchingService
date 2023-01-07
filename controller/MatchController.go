@@ -82,13 +82,6 @@ func DeleteMatch(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		/*if errDelete := dbInterface.DeleteMatch(db, matchToDelete); errDelete != nil {
-			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": errDelete,
-			})
-			return
-		}*/
-
 		context.JSON(http.StatusOK, gin.H{
 			"message": "Match deleted!",
 		})
@@ -175,12 +168,6 @@ func ProposeUser(db *gorm.DB, redis *redis.Client) gin.HandlerFunc {
 			})
 			return
 		}
-
-		/*userToFind, errFind := connector.GetProfileById((convId))
-		if errFind != nil {
-			context.AbortWithError(http.StatusNotFound, errFind)
-			return
-		}*/
 
 		// Select Users
 		selectedSkilledUsers, errUsers := connector.GetProfilesBySkill(search.Skill)
@@ -316,14 +303,6 @@ func ExploreUser(redis *redis.Client) gin.HandlerFunc {
 			})
 			return
 		}
-
-		/*possibleUserToPropose, errUsers := connector.GetAllProfiles()
-		if errUsers != nil {
-			context.AbortWithStatusJSON(http.StatusConflict, gin.H{
-				"error": "No users found!",
-			})
-			return
-		}*/
 
 		// Check for Dislike
 		for _, otherUserIdString := range *possibleUserIdsToPropose {
