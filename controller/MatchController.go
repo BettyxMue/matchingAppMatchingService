@@ -131,6 +131,18 @@ func CreateMatch(redis *redis.Client, db *gorm.DB) gin.HandlerFunc {
 				context.AbortWithError(http.StatusInternalServerError, errLike2)
 				return
 			}
+
+			_, errOtherLike1 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+			if errOtherLike1 != nil {
+				context.AbortWithError(http.StatusInternalServerError, errLike2)
+				return
+			}
+			_, errOtherLike2 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikedId, newMatch.LikerId)
+			if errOtherLike2 != nil {
+				context.AbortWithError(http.StatusInternalServerError, errLike2)
+				return
+			}
+
 		}
 
 		context.IndentedJSON(http.StatusAccepted, gin.H{
@@ -264,6 +276,15 @@ func CreateMatchAfterLike(db *gorm.DB, redis *redis.Client, matchData *dataStruc
 	}
 	_, errLike2 := dbInterface.DeleteLikeEntry(redis, matchData.LikerId, matchData.LikedId)
 	if errLike2 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+
+	_, errOtherLike1 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+	if errOtherLike1 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+	_, errOtherLike2 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikedId, newMatch.LikerId)
+	if errOtherLike2 != nil {
 		return nil, errors.New(errCreate.Error())
 	}
 

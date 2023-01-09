@@ -80,3 +80,13 @@ func DeleteLikeEntry(redis *redis.Client, userId1 int, userId2 int) (bool, error
 
 	return true, nil
 }
+
+func DeleteReversedLikeEntry(redis *redis.Client, userId1 int, userId2 int) (bool, error) {
+	result := redis.SRem("liked"+strconv.Itoa(userId1), strconv.Itoa(userId2))
+
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
+	return true, nil
+}
