@@ -279,6 +279,15 @@ func CreateMatchAfterLike(db *gorm.DB, redis *redis.Client, matchData *dataStruc
 		return nil, errors.New(errCreate.Error())
 	}
 
+	_, errOtherLike1 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+	if errOtherLike1 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+	_, errOtherLike2 := dbInterface.DeleteReversedLikeEntry(redis, newMatch.LikerId, newMatch.LikedId)
+	if errOtherLike2 != nil {
+		return nil, errors.New(errCreate.Error())
+	}
+
 	return match, nil
 }
 
